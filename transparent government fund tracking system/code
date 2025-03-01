@@ -1,0 +1,263 @@
+import java.util.*;
+// Class to store fund transaction details (Linked List Node)
+class FundTransaction {
+    String beneficiary;
+    String scheme;
+    double amount;
+    String date;
+    FundTransaction next;
+
+    public FundTransaction(String beneficiary, String scheme, double amount, String date) {
+        this.beneficiary = beneficiary;
+        this.scheme = scheme;
+        this.amount = amount;
+        this.date = date;
+        this.next = null;
+    }
+
+    public void display() {
+        System.out.println("------------------------------------------------");
+        System.out.println("Beneficiary: " + beneficiary);
+        System.out.println("Scheme: " + scheme);
+        System.out.println("Amount: ₹" + amount);
+        System.out.println("Date: " + date);
+        System.out.println("------------------------------------------------");
+    }
+}
+
+// Fund Linked List
+class FundLinkedList {
+    private FundTransaction head;
+
+    public void addTransaction(String beneficiary, String scheme, double amount, String date) {
+        FundTransaction newTransaction = new FundTransaction(beneficiary, scheme, amount, date);
+        if (head == null) {
+            head = newTransaction;
+        } else {
+            FundTransaction temp = head;
+            while (temp.next != null) {
+                temp = temp.next;
+            }
+            temp.next = newTransaction;
+        }
+    }
+
+    public void displayTransactions() {
+        FundTransaction temp = head;
+        if (temp == null) {
+            System.out.println("⚠ No transactions recorded.");
+            return;
+        }
+        while (temp != null) {
+            temp.display();
+            temp = temp.next;
+        }
+    }
+}
+
+// Stack to store recent transactions (for rollback)
+class TransactionStack {
+    private Stack<FundTransaction> stack = new Stack<>();
+
+    public void pushTransaction(FundTransaction transaction) {
+        stack.push(transaction);
+    }
+
+    public void rollbackLastTransaction() {
+        if (!stack.isEmpty()) {
+            FundTransaction last = stack.pop();
+            System.out.println("\n🔄 Rolled Back Transaction:");
+            last.display();
+        } else {
+            System.out.println("\n⚠ No transactions to rollback.");
+        }
+    }
+}
+
+// Queue for pending fund requests
+class FundQueue {
+    private Queue<FundTransaction> queue = new LinkedList<>();
+
+    public void addRequest(FundTransaction transaction) {
+        queue.offer(transaction);
+        System.out.println("\n✅ Fund Request Added to Queue");
+    }
+
+    public void processRequest() {
+        if (!queue.isEmpty()) {
+            FundTransaction processed = queue.poll();
+            System.out.println("\n📤 Processing Fund Request:");
+            processed.display();
+        } else {
+            System.out.println("\n⚠ No pending fund requests.");
+        }
+    }
+}
+
+// HashMap for Beneficiary Verification
+class BeneficiaryHashMap {
+    private HashMap<String, Double> beneficiaryMap = new HashMap<>();
+
+    public void addBeneficiary(String name, double balance) {
+        beneficiaryMap.put(name, balance);
+    }
+
+    public boolean verifyBeneficiary(String name) {
+        return beneficiaryMap.containsKey(name);
+    }
+
+    public void displayBeneficiaries() {
+        System.out.println("\n📌 Verified Beneficiaries:");
+        for (String name : beneficiaryMap.keySet()) {
+            System.out.println("- " + name + " (Balance: ₹" + beneficiaryMap.get(name) + ")");
+        }
+    }
+}
+
+// Binary Search Tree (BST) for sorted transaction retrieval
+class TransactionBST {
+    class Node {
+        FundTransaction transaction;
+        Node left, right;
+
+        public Node(FundTransaction transaction) {
+            this.transaction = transaction;
+            this.left = this.right = null;
+        }
+    }
+
+    private Node root;
+
+    public void insertTransaction(FundTransaction transaction) {
+        root = insertRec(root, transaction);
+    }
+
+    private Node insertRec(Node root, FundTransaction transaction) {
+        if (root == null) {
+            return new Node(transaction);
+        }
+        if (transaction.amount < root.transaction.amount) {
+            root.left = insertRec(root.left, transaction);
+        } else {
+            root.right = insertRec(root.right, transaction);
+        }
+        return root;
+    }
+
+    public void inorderTraversal() {
+        inorderRec(root);
+    }
+
+    private void inorderRec(Node root) {
+        if (root != null) {
+            inorderRec(root.left);
+            root.transaction.display();
+            inorderRec(root.right);
+        }
+    }
+}
+
+// Graph for Fund Flow Tracking
+class FundGraph {
+    private HashMap<String, List<String>> graph = new HashMap<>();
+
+    public void addConnection(String from, String to) {
+        graph.putIfAbsent(from, new ArrayList<>());
+        graph.get(from).add(to);
+    }
+
+    public void displayConnections() {
+        System.out.println("\n📊 Government Fund Flow:");
+        for (String from : graph.keySet()) {
+            System.out.println(from + " → " + graph.get(from));
+        }
+    }
+}
+
+// Main Class (User Interface)
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        FundLinkedList fundList = new FundLinkedList();
+        FundQueue fundQueue = new FundQueue();
+        BeneficiaryHashMap beneficiaryMap = new BeneficiaryHashMap();
+        TransactionStack transactionStack = new TransactionStack();
+        TransactionBST transactionBST = new TransactionBST();
+        FundGraph fundGraph = new FundGraph();
+
+        // Adding sample beneficiaries
+        beneficiaryMap.addBeneficiary("Rajesh Kumar", 10000);
+        beneficiaryMap.addBeneficiary("Sunita Sharma", 5000);
+
+        while (true) {
+            System.out.println("\n--- Transparent Government Fund Tracking ---");
+            System.out.println("1️⃣ Add Fund Request");
+            System.out.println("2️⃣ Process Fund Request");
+            System.out.println("3️⃣ Verify Beneficiary");
+            System.out.println("4️⃣ Rollback Last Transaction");
+            System.out.println("5️⃣ Display Sorted Transactions (BST)");
+            System.out.println("6️⃣ Display Fund Flow Graph");
+            System.out.println("7️⃣ Display All Transactions");
+            System.out.println("8️⃣ Exit");
+            System.out.print("Enter choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("\nEnter Beneficiary Name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter Scheme: ");
+                    String scheme = scanner.nextLine();
+                    System.out.print("Enter Amount: ₹");
+                    double amount = scanner.nextDouble();
+                    scanner.nextLine();
+                    System.out.print("Enter Date (DD/MM/YYYY): ");
+                    String date = scanner.nextLine();
+
+                    FundTransaction transaction = new FundTransaction(name, scheme, amount, date);
+                    fundQueue.addRequest(transaction);
+                    fundList.addTransaction(name, scheme, amount, date);
+                    transactionStack.pushTransaction(transaction);
+                    transactionBST.insertTransaction(transaction);
+                    break;
+
+                case 2:
+                    fundQueue.processRequest();
+                    break;
+
+                case 3:
+                    System.out.print("\nEnter Beneficiary Name: ");
+                    String verifyName = scanner.nextLine();
+                    System.out.println(beneficiaryMap.verifyBeneficiary(verifyName) 
+                        ? "✅ Beneficiary Verified!" 
+                        : "❌ Not a registered beneficiary.");
+                    break;
+
+                case 4:
+                    transactionStack.rollbackLastTransaction();
+                    break;
+
+                case 5:
+                    transactionBST.inorderTraversal();
+                    break;
+
+                case 6:
+                    fundGraph.displayConnections();
+                    break;
+
+                case 7:
+                    fundList.displayTransactions();
+                    break;
+
+                case 8:
+                    System.out.println("\n🔴 Exiting... Thank you!");
+                    scanner.close();
+                    return;
+
+                default:
+                    System.out.println("\n⚠ Invalid choice. Try again.");
+            }
+        }
+    }
+}
